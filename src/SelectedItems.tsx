@@ -70,7 +70,7 @@ const SelectedItems: React.FC<Selected> = ({ name, quantity,img,dark,free,onRemo
                             </Grid>
                             <Grid item>
                             <Button variant="outlined" className={classes.button} onClick={onRemove}>
-                                Add to cart
+                                Remove
                                 </Button>
                             </Grid>
                         </Grid>

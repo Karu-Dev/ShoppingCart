@@ -1,14 +1,18 @@
 import React from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import { Button } from '@material-ui/core';
+import { useDrag, DragSourceMonitor } from 'react-dnd'
+import ItemTypes from './ItemTypes'
+
+
 export interface ProductProps {
     name: string;
     price: number;
     img: string;
+    stock:number;
     click():void;
     dark:boolean;
 }
@@ -45,12 +49,30 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+const style: React.CSSProperties = {
+    border: '1px dashed gray',
+    backgroundColor: 'inherit',
+  }
 
-const Product: React.FC<ProductProps> = ({ name, price, img, click, dark }) => {
+const Product: React.FC<ProductProps> = ({ name, price, img,stock, click, dark }) => {
     const classes = useStyles();
+    const [{ isDragging }, drag] = useDrag({
+        item: { name, type: ItemTypes.GUNS },
+        end: (item: { name: string } | undefined, monitor: DragSourceMonitor) => {
+          const dropResult = monitor.getDropResult()
+          if (item && dropResult) {
+            click()
+          }
+        },
+        collect: monitor => ({
+          isDragging: monitor.isDragging(),
+        }),
+      })
+      const opacity = isDragging ? 0.4 : 1
     return (
-        <div className={classes.root}>
-            <Paper className={dark?classes.paper:classes.darkPaper}>
+        <div ref={drag} className={classes.root}>
+            <div style={{ ...style, opacity }}>
+    
                 <Grid container spacing={2}>
                 <Grid item>
                         <ButtonBase className={classes.image}>
@@ -77,11 +99,11 @@ const Product: React.FC<ProductProps> = ({ name, price, img, click, dark }) => {
                             </Grid>
                         </Grid>
                         <Grid item>
-                            <Typography variant="subtitle1">{price}$</Typography>
+                            <Typography variant="subtitle1">{price}$({stock} left in stock)</Typography>
                         </Grid>
                     </Grid>
                 </Grid>
-            </Paper>
+                </div>
         </div>)
 }
 export default Product;
